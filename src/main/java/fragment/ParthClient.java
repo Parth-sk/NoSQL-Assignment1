@@ -1,3 +1,5 @@
+//TO implement some functions for FragmentClient.java
+
 package fragment;
 
 import java.sql.*;
@@ -14,10 +16,12 @@ public class ParthClient {
     private static final String DB_PASSWORD = "1234"; 
     private static final String BASE_URL = "jdbc:postgresql://localhost:5432/fragment";
 
-    public ParthClient(int numFragments) {
+    public ParthClient(int numFragments,HashMap<Integer, Connection> connectionPool) {
+        
         this.numFragments = numFragments;
         this.router = new Router(numFragments);
-        this.connectionPool = new HashMap<>();
+        this.connectionPool = connectionPool;
     }
 
+    
 }
