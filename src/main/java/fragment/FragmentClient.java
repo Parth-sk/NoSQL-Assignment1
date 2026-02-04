@@ -162,4 +162,23 @@ public class FragmentClient {
             e.printStackTrace();
         }
     }
+    // NEW METHOD: Cleans all tables before running tests
+    public void cleanDatabase() {
+        try {
+            for (int i = 0; i < numFragments; i++) {
+                // CORRECT FIX: Use connectionPool.get(i) instead of connections[i]
+                Connection conn = connectionPool.get(i);
+                
+                if (conn != null) {
+                    Statement stmt = conn.createStatement();
+                    // We use CASCADE to ensure Grades are deleted if Students are deleted
+                    stmt.executeUpdate("TRUNCATE TABLE Grade, Student CASCADE"); 
+                    stmt.close();
+                }
+            }
+            System.out.println("✅ Database wiped clean!");
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to clean database: " + e.getMessage());
+        }
+    }
 }
