@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Driver {
     public static void main(String[] args) {
         // You can change this to 1 for the "Control" run, and 3 for the "Actual" run
-        int numFragments = 3; 
+        int numFragments = 3;
         
         FragmentClient client = new FragmentClient(numFragments);
         try {
