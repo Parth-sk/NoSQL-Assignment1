@@ -52,7 +52,27 @@ public class FragmentClient {
             System.err.println("Error inserting student: " + e.getMessage());
         }
     }
-    public void insertGrade(String s, String c, int sc) {}
+    // TASK 3: Route grade to shard (co-located with student) and Insert
+    public void insertGrade(String studentId, String courseId, int score) {
+        try {
+            // Critical: We route based on studentId so the grade lives with the student
+            int fragmentId = router.getFragmentId(studentId);
+            Connection conn = connectionPool.get(fragmentId);
+
+            String sql = "INSERT INTO Grade (student_id, course_id, score) VALUES (?, ?, ?)";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, studentId);
+            pstmt.setString(2, courseId);
+            pstmt.setInt(3, score);
+            pstmt.executeUpdate();
+            pstmt.close();
+            
+            System.out.println("Grade for " + studentId + " inserted into Fragment " + fragmentId);
+
+        } catch (SQLException e) {
+            System.err.println("Error inserting grade: " + e.getMessage());
+        }
+    }
     public void closeConnections() {
         try { for(Connection c : connectionPool.values()) if(c!=null) c.close(); } catch(Exception e){}
     }
