@@ -11,6 +11,8 @@ public class FragmentClient {
     private Router router;
     private int numFragments;
     private Random random;
+    private ParthClient parthClient;
+
 
     // DB configuration - change only if your DB credentials differ
     private static final String DB_USER = "postgres";
@@ -23,6 +25,7 @@ public class FragmentClient {
         this.router = new Router(this.numFragments);
         this.connectionPool = new HashMap<>();
         this.random = new Random();
+        this.parthClient = new ParthClient(numFragments, connectionPool);
     }
 
     /**
@@ -96,43 +99,14 @@ public class FragmentClient {
      * Task 4: Update a grade (route by studentId).
      */
     public void updateGrade(String studentId, String courseId, int newScore) {
-        if (studentId == null) return;
-        int fragmentId = router.getFragmentId(studentId);
-        Connection conn = connectionPool.get(fragmentId);
-        if (conn == null) {
-            System.err.println("updateGrade: no connection for fragment " + fragmentId);
-            return;
-        }
-        String sql = "UPDATE Grade SET score = ? WHERE student_id = ? AND course_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, newScore);
-            ps.setString(2, studentId);
-            ps.setString(3, courseId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("updateGrade failed for sid=" + studentId + " on frag=" + fragmentId + " -> " + e.getMessage());
-        }
+        parthClient.updateGrade(studentId, courseId, newScore);
     }
 
     /**
      * Task 5: Delete a student's grade in a course.
      */
     public void deleteStudentFromCourse(String studentId, String courseId) {
-        if (studentId == null) return;
-        int fragmentId = router.getFragmentId(studentId);
-        Connection conn = connectionPool.get(fragmentId);
-        if (conn == null) {
-            System.err.println("deleteStudentFromCourse: no connection for fragment " + fragmentId);
-            return;
-        }
-        String sql = "DELETE FROM Grade WHERE student_id = ? AND course_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, studentId);
-            ps.setString(2, courseId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("deleteStudentFromCourse failed for sid=" + studentId + " on frag=" + fragmentId + " -> " + e.getMessage());
-        }
+        parthClient.deleteStudentFromCourse(studentId, courseId);
     }
 
     /**
@@ -209,7 +183,7 @@ public class FragmentClient {
             lines.add(dept + ":" + String.format("%.2f", avg));
         }
         Collections.sort(lines);
-        return String.join("\n", lines);
+        return String.join(";", lines);
     }
 
     /**
