@@ -136,3 +136,4 @@ public class YashubClient {
 
         return String.join(",", best) + ":" + max;
     }
+}
